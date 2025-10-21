@@ -53,3 +53,10 @@ Schéma de l'artchitecture voulue (généré par IA) :
               │   CONFIG SERVERS (3)     │  ← Métadonnées
               │     (Replica Set)        │
               └──────────────────────────┘
+
+Fonctionnement actuel (script ps et js) : 
+docker-compose down -v (coupe les conteneurs)
+Remove-Item -Recurse -Force c:\Users\gatue\Documents\R510-repartition-charge\docker\data\* (supprime tous les dossiers data)
+docker-compose up -d (Lance les conteneurs)
+Start-Sleep -Seconds 5; docker ps --format "table {{.Names}}\t{{.Status}}" (Vérifie que les conteneurs sont ok avant de lancer la commande suivante)
+.\setup-cluster.ps1 (Lance les clusters via le script ps)

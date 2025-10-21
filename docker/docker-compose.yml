@@ -1,6 +1,68 @@
 version: "3.8"
 
 services:
+# Routers
+  routeur_1:
+    image: mongo:6
+    container_name: routeur_1
+    ports:
+      - "27041:27017"
+    command: ["mongos", "--configdb", "configReplSet/config_server_1:27017,config_server_2:27017,config_server_3:27017", "--bind_ip_all"]
+    depends_on:
+      - config_server_1
+      - config_server_2
+      - config_server_3
+    networks:
+      - mongoCluster
+
+  routeur_2:
+    image: mongo:6
+    container_name: routeur_2
+    ports:
+      - "27040:27017"
+    command: ["mongos", "--configdb", "configReplSet/config_server_1:27017,config_server_2:27017,config_server_3:27017", "--bind_ip_all"]
+    depends_on:
+      - config_server_1
+      - config_server_2
+      - config_server_3
+    networks:
+      - mongoCluster
+  # Config server
+  config_server_1:
+    image: mongo:6
+    container_name: config_server_1
+    hostname: config_server_1
+    ports:
+      - "27031:27017"
+    command: ["mongod", "--replSet", "configReplSet", "--configsvr", "--bind_ip_all", "--port", "27017"]
+    volumes:
+      - ./data/config_server_1:/data/db
+    networks:
+      - mongoCluster
+
+  config_server_2:
+    image: mongo:6
+    container_name: config_server_2
+    hostname: config_server_2
+    ports:
+      - "27032:27017"
+    command: ["mongod", "--replSet", "configReplSet", "--configsvr", "--bind_ip_all", "--port", "27017"]
+    volumes:
+      - ./data/config_server_2:/data/db
+    networks:
+      - mongoCluster
+
+  config_server_3:
+    image: mongo:6
+    container_name: config_server_3
+    hostname: config_server_3
+    ports:
+      - "27033:27017"
+    command: ["mongod", "--replSet", "configReplSet", "--configsvr", "--bind_ip_all", "--port", "27017"]
+    volumes:
+      - ./data/config_server_3:/data/db
+    networks:
+      - mongoCluster
   # serveur a
   principal_a:
     image: mongo:6
@@ -8,10 +70,7 @@ services:
     hostname: principal_a
     ports:
       - "27017:27017"
-    command: ["mongod", "--replSet", "principal_a", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_a", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/principal_a:/data/db
     networks:
@@ -23,10 +82,7 @@ services:
     hostname: secondaire_a_1
     ports:
       - "27018:27017"
-    command: ["mongod", "--replSet", "principal_a", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_a", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/secondaire_a_1:/data/db
     networks:
@@ -38,10 +94,7 @@ services:
     hostname: secondaire_a_2
     ports:
       - "27019:27017"
-    command: ["mongod", "--replSet", "principal_a", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_a", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/secondaire_a_2:/data/db
     networks:
@@ -53,10 +106,7 @@ services:
     hostname: secondaire_a_3
     ports:
       - "27020:27017"
-    command: ["mongod", "--replSet", "principal_a", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_a", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/secondaire_a_3:/data/db
     networks:
@@ -69,10 +119,7 @@ services:
     hostname: principal_b
     ports:
       - "27021:27017"
-    command: ["mongod", "--replSet", "principal_b", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_b", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/principal_b:/data/db
     networks:
@@ -84,10 +131,7 @@ services:
     hostname: secondaire_b_1
     ports:
       - "27022:27017"
-    command: ["mongod", "--replSet", "principal_b", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_b", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/secondaire_b_1:/data/db
     networks:
@@ -99,10 +143,7 @@ services:
     hostname: secondaire_b_2
     ports:
       - "27023:27017"
-    command: ["mongod", "--replSet", "principal_b", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_b", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/secondaire_b_2:/data/db
     networks:
@@ -114,10 +155,7 @@ services:
     hostname: secondaire_b_3
     ports:
       - "27024:27017"
-    command: ["mongod", "--replSet", "principal_b", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_b", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/secondaire_b_3:/data/db
     networks:
@@ -130,10 +168,7 @@ services:
     hostname: principal_c
     ports:
       - "27025:27017"
-    command: ["mongod", "--replSet", "principal_c", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_c", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/principal_c:/data/db
     networks:
@@ -145,10 +180,7 @@ services:
     hostname: secondaire_c_1
     ports:
       - "27026:27017"
-    command: ["mongod", "--replSet", "principal_c", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_c", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/secondaire_c_1:/data/db
     networks:
@@ -160,10 +192,7 @@ services:
     hostname: secondaire_c_2
     ports:
       - "27027:27017"
-    command: ["mongod", "--replSet", "principal_c", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_c", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/secondaire_c_2:/data/db
     networks:
@@ -175,10 +204,7 @@ services:
     hostname: secondaire_c_3
     ports:
       - "27028:27017"
-    command: ["mongod", "--replSet", "principal_c", "--bind_ip_all"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    command: ["mongod", "--replSet", "replicaSet_c", "--shardsvr", "--bind_ip_all", "--port", "27017"]
     volumes:
       - ./data/secondaire_c_3:/data/db
     networks:

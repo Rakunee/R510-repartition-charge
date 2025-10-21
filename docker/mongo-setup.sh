@@ -1,4 +1,7 @@
 #!/bin/bash
+
+docker compose up --wait
+
 sleep 10
 
 mongosh --host principal_a:27017 <<EOF
@@ -53,7 +56,7 @@ EOF
 
 mongosh --host principal_c:27017 <<EOF
   var cfg = {
-    "_id": "principal_a",
+    "_id": "principal_c",
     "version": 1,
     "members": [
       {

@@ -1,3 +1,7 @@
 # Ignore desktop.ini files
 desktop.ini
 **/desktop.ini
+
+# Ignore MongoDB data directories
+docker/data/
+docker/data/**/
