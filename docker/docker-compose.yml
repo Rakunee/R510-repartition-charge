@@ -1,0 +1,189 @@
+version: "3.8"
+
+services:
+  # serveur a
+  principal_a:
+    image: mongo:6
+    container_name: principal_a
+    hostname: principal_a
+    ports:
+      - "27017:27017"
+    command: ["mongod", "--replSet", "principal_a", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/principal_a:/data/db
+    networks:
+      - mongoCluster
+      
+  secondaire_a_1:
+    image: mongo:6
+    container_name: secondaire_a_1
+    hostname: secondaire_a_1
+    ports:
+      - "27018:27017"
+    command: ["mongod", "--replSet", "principal_a", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/secondaire_a_1:/data/db
+    networks:
+      - mongoCluster
+  
+  secondaire_a_2:
+    image: mongo:6
+    container_name: secondaire_a_2
+    hostname: secondaire_a_2
+    ports:
+      - "27019:27017"
+    command: ["mongod", "--replSet", "principal_a", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/secondaire_a_2:/data/db
+    networks:
+      - mongoCluster
+  
+  secondaire_a_3:
+    image: mongo:6
+    container_name: secondaire_a_3
+    hostname: secondaire_a_3
+    ports:
+      - "27020:27017"
+    command: ["mongod", "--replSet", "principal_a", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/secondaire_a_3:/data/db
+    networks:
+      - mongoCluster
+  
+  # serveur b
+  principal_b:
+    image: mongo:6
+    container_name: principal_b
+    hostname: principal_b
+    ports:
+      - "27021:27017"
+    command: ["mongod", "--replSet", "principal_b", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/principal_b:/data/db
+    networks:
+      - mongoCluster
+  
+  secondaire_b_1:
+    image: mongo:6
+    container_name: secondaire_b_1
+    hostname: secondaire_b_1
+    ports:
+      - "27022:27017"
+    command: ["mongod", "--replSet", "principal_b", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/secondaire_b_1:/data/db
+    networks:
+      - mongoCluster
+  
+  secondaire_b_2:
+    image: mongo:6
+    container_name: secondaire_b_2
+    hostname: secondaire_b_2
+    ports:
+      - "27023:27017"
+    command: ["mongod", "--replSet", "principal_b", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/secondaire_b_2:/data/db
+    networks:
+      - mongoCluster
+  
+  secondaire_b_3:
+    image: mongo:6
+    container_name: secondaire_b_3
+    hostname: secondaire_b_3
+    ports:
+      - "27024:27017"
+    command: ["mongod", "--replSet", "principal_b", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/secondaire_b_3:/data/db
+    networks:
+      - mongoCluster
+
+  # serveur c
+  principal_c:
+    image: mongo:6
+    container_name: principal_c
+    hostname: principal_c
+    ports:
+      - "27025:27017"
+    command: ["mongod", "--replSet", "principal_c", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/principal_c:/data/db
+    networks:
+      - mongoCluster
+  
+  secondaire_c_1:
+    image: mongo:6
+    container_name: secondaire_c_1
+    hostname: secondaire_c_1
+    ports:
+      - "27026:27017"
+    command: ["mongod", "--replSet", "principal_c", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/secondaire_c_1:/data/db
+    networks:
+      - mongoCluster
+  
+  secondaire_c_2:
+    image: mongo:6
+    container_name: secondaire_c_2
+    hostname: secondaire_c_2
+    ports:
+      - "27027:27017"
+    command: ["mongod", "--replSet", "principal_c", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/secondaire_c_2:/data/db
+    networks:
+      - mongoCluster
+  
+  secondaire_c_3:
+    image: mongo:6
+    container_name: secondaire_c_3
+    hostname: secondaire_c_3
+    ports:
+      - "27028:27017"
+    command: ["mongod", "--replSet", "principal_c", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/secondaire_c_3:/data/db
+    networks:
+      - mongoCluster
+
+networks:
+  mongoCluster:
+    driver: bridge
