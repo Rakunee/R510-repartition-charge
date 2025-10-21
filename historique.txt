@@ -1,0 +1,10 @@
+Difficultés : 
+- Trouver des sites qui parle de déploiement en local et pas en ligne avec mongo atlas
+
+Commandes : 
+docker network create mongoCluster
+
+Sites : 
+https://www.mongodb.com/resources/products/compatibilities/deploying-a-mongodb-cluster-with-docker
+
+https://dev.to/mattdark/deploy-a-mongodb-cluster-with-docker-compose-4ieo
