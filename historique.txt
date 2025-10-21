@@ -1,8 +1,9 @@
 Difficultés : 
-- Trouver des sites qui parle de déploiement en local et pas en ligne avec mongo atlas
+- Trouver des sites qui parlent de déploiement en local et non en ligne avec mongo atlas
 - Comment faire un routeur
 - Comprendre le principe du sharding 
 - Trouver la bonne structure pour le docker compose (organisation des services, du réseau...)
+- Utiliser mongodb avec python
 
 Commandes : 
 
@@ -16,6 +17,10 @@ https://dev.to/mattdark/deploy-a-mongodb-cluster-with-docker-compose-4ieo
 Documentation pour comprendre le sharding et comment faire les routeurs : 
 https://www.mongodb.com/docs/manual/sharding/
 https://www.mongodb.com/docs/manual/core/sharded-cluster-components/
+
+PyMongo:
+https://www.w3schools.com/python/python_mongodb_getstarted.asp
+
 
 
 Schéma de l'artchitecture voulue (généré par IA) :
