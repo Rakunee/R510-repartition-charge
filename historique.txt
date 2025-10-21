@@ -1,10 +1,50 @@
 Difficultés : 
 - Trouver des sites qui parle de déploiement en local et pas en ligne avec mongo atlas
+- Comment faire un routeur
+- Comprendre le principe du sharding 
+- Trouver la bonne structure pour le docker compose (organisation des services, du réseau...)
 
 Commandes : 
-docker network create mongoCluster
 
 Sites : 
+Commandes si on n'utilise pas de docker-compose : 
 https://www.mongodb.com/resources/products/compatibilities/deploying-a-mongodb-cluster-with-docker
 
+Aides sur le docker-compose :
 https://dev.to/mattdark/deploy-a-mongodb-cluster-with-docker-compose-4ieo
+
+Documentation pour comprendre le sharding et comment faire les routeurs : 
+https://www.mongodb.com/docs/manual/sharding/
+https://www.mongodb.com/docs/manual/core/sharded-cluster-components/
+
+
+Schéma de l'artchitecture voulue (généré par IA) :
+┌──────────────────────────────────────────────────────────┐
+│                    APPLICATION CLIENT                    │
+└────────────────────┬─────────────────┬───────────────────┘
+                     │                 │
+              ┌──────▼──────┐   ┌──────▼──────┐
+              │  MONGOS 1   │   │  MONGOS 2   │  ← ROUTEURS (HA)
+              │  (Router)   │   │  (Router)   │
+              └──────┬──────┘   └──────┬──────┘
+                     │                 │
+                     └────────┬────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+   ┌────▼─────┐         ┌─────▼────┐          ┌─────▼────┐
+   │ SHARD 1  │         │ SHARD 2  │          │ SHARD 3  │  ← NOEUDS PRINCIPAUX
+   │(Primary) │         │(Primary) │          │(Primary) │     (Replica Sets)
+   └────┬─────┘         └─────┬────┘          └─────┬────┘
+        │                     │                     │
+   ┌────┼────┐           ┌────┼────┐           ┌────┼────┐
+   │    │    │           │    │    │           │    │    │
+┌──▼─┐┌─▼─┐┌─▼──┐     ┌──▼─┐┌─▼─┐┌─▼──┐     ┌──▼─┐┌─▼─┐┌─▼──┐
+│Rep1││Rep││Rep3│     │Rep1││Rep││Rep3│     │Rep1││Rep││Rep3│
+│    ││ 2 ││    │     │    ││ 2 ││    │     │    ││ 2 ││    │
+└────┘└───┘└────┘     └────┘└───┘└────┘     └────┘└───┘└────┘
+
+              ┌──────────────────────────┐
+              │   CONFIG SERVERS (3)     │  ← Métadonnées
+              │     (Replica Set)        │
+              └──────────────────────────┘
