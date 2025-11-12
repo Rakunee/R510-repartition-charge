@@ -5,3 +5,5 @@ desktop.ini
 # Ignore MongoDB data directories
 docker/data/
 docker/data/**/
+
+logs/*

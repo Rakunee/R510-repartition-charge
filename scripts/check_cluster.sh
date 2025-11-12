@@ -11,6 +11,13 @@ CONFIG_CONTAINER=${CONFIG_CONTAINER:-config_server_1}
 SHARD_CONTAINERS=(principal_a principal_b principal_c)
 SECONDARY_TEST_CONTAINER=${SECONDARY_TEST_CONTAINER:-secondaire_a_1}
 
+# Logging: dossier et fichier log horodaté
+LOGDIR=${LOGDIR:-./logs}
+mkdir -p "$LOGDIR"
+LOGFILE="${LOGFILE:-$LOGDIR/check_cluster_$(date +%Y%m%d_%H%M%S).log}"
+# Redirige stdout+stderr vers tee (écrit dans le fichier et affiche à l'écran)
+exec > >(tee -a "$LOGFILE") 2>&1
+
 function run_mongosh_container() {
   local container="$1"
   shift
@@ -19,6 +26,7 @@ function run_mongosh_container() {
 
 echo "============================================================"
 echo " Vérification du cluster MongoDB sharded (via containers Docker)"
+echo " Logs écrits dans: $LOGFILE"
 echo "============================================================"
 
 echo -e "\n--- sh.status() via $MONGOS_CONTAINER ---"
