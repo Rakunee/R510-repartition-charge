@@ -4,8 +4,12 @@ Difficultés :
 - Comprendre le principe du sharding 
 - Trouver la bonne structure pour le docker compose (organisation des services, du réseau...)
 - Utiliser mongodb avec python
+- Utiliser les commandes mongosh et mongodb database tools
 
 Commandes : 
+mongoimport --host localhost --port 27040 --db tp --collection books --file ./Abooks2.json --jsonArray
+mongosh mongodb://localhost:27040
+
 
 Sites : 
 Commandes si on n'utilise pas de docker-compose : 
@@ -20,6 +24,9 @@ https://www.mongodb.com/docs/manual/core/sharded-cluster-components/
 
 PyMongo:
 https://www.w3schools.com/python/python_mongodb_getstarted.asp
+
+Commandes mongoDB:
+https://www.mongodb.com/try/download/shell
 
 
 
