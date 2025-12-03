@@ -69,3 +69,6 @@ Remove-Item -Recurse -Force c:\Users\gatue\Documents\R510-repartition-charge\doc
 docker-compose up -d (Lance les conteneurs)
 Start-Sleep -Seconds 5; docker ps --format "table {{.Names}}\t{{.Status}}" (Vérifie que les conteneurs sont ok avant de lancer la commande suivante)
 .\setup-cluster.ps1 (Lance les clusters via le script ps)
+
+https://www.mongodb.com/try/download/database-tools
+à installer
