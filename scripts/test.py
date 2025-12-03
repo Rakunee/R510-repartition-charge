@@ -43,7 +43,6 @@ def main():
     logger.info('Connexion à mongos: %s', MONGOS_URI)
     client = pymongo.MongoClient(MONGOS_URI, serverSelectionTimeoutMS=5000)
     try:
-        # force une sélection du serveur
         client.admin.command('ping')
     except Exception as e:
         logger.error('Impossible de joindre mongos: %s', e)
@@ -83,7 +82,6 @@ def main():
         indexes = coll.index_information()
         has_hashed_on_id = False
         for name, info in indexes.items():
-            # info['key'] exemple: [('_id', 1)] ou [('_id', 'hashed')]
             keys = info.get('key', [])
             if len(keys) > 0 and keys[0][0] == '_id' and (keys[0][1] == 'hashed' or keys[0][1] == pymongo.HASHED):
                 has_hashed_on_id = True
@@ -112,8 +110,8 @@ def main():
         logger.error('Erreur shardCollection: %s', e)
         sys.exit(3)
     
-    # Attendre l'apparition des chunks (timeout réduit, non bloquant)
-    timeout = 15  # Réduit de 60 à 15 secondes
+    # Attendre l'apparition des chunks
+    timeout = 15
     waited = 0
     chunks_found = False
     
@@ -121,14 +119,14 @@ def main():
     while waited < timeout:
         cnt = cfg['chunks'].count_documents({'ns': 'tp.books'})
         if cnt > 0:
-            logger.info('✓ %d chunks trouvés pour tp.books', cnt)
+            logger.info('%d chunks trouvés pour tp.books', cnt)
             chunks_found = True
             break
         time.sleep(2)
         waited += 2
 
     if not chunks_found:
-        logger.warning('⚠ Aucun chunk détecté après %ds', waited)
+        logger.warning('Aucun chunk détecté après %ds', waited)
         logger.warning('  C\'est normal pour une collection vide/nouvelle')
         logger.warning('  Les chunks seront créés automatiquement lors de l\'insertion de données')
         logger.info('  Le sharding est configuré, on continue...')
@@ -143,8 +141,8 @@ def main():
         for doc in cfg['chunks'].aggregate(pipeline):
             logger.info('  Shard %s -> %d chunks', doc['_id'], doc['count'])
 
-    logger.info('✓ Configuration du sharding terminée')
-    return client  # Retourner le client pour réutilisation
+    logger.info('Configuration du sharding terminée')
+    return client
 
 
 def test_operations(client):
@@ -161,7 +159,6 @@ def test_operations(client):
     initial_count = books.count_documents({})
     logger.info(f'Nombre de documents initial: {initial_count}')
     
-    # ========== TEST 1: INSERTION ==========
     logger.info('\n--- TEST 1: Insertion de nouveaux documents ---')
     test_books = [
         {
@@ -195,30 +192,29 @@ def test_operations(client):
     
     try:
         result = books.insert_many(test_books)
-        logger.info(f'✓ Insertion réussie: {len(result.inserted_ids)} documents insérés')
+        logger.info(f' Insertion réussie: {len(result.inserted_ids)} documents insérés')
         logger.info(f'  IDs insérés: {result.inserted_ids}')
     except Exception as e:
-        logger.error(f'✗ Erreur lors de l\'insertion: {e}')
+        logger.error(f' Erreur lors de l\'insertion: {e}')
     
     # Vérifier le nouveau count
     new_count = books.count_documents({})
     logger.info(f'Nombre de documents après insertion: {new_count} (delta: +{new_count - initial_count})')
     
-    # ========== TEST 2: LECTURE ==========
     logger.info('\n--- TEST 2: Lecture de documents ---')
     
     # Lecture simple
     logger.info('2.1 - Lecture d\'un document par _id:')
     doc = books.find_one({'_id': 'test_book_1'})
     if doc:
-        logger.info(f'  ✓ Document trouvé: {doc.get("title")} par {doc.get("authors")}')
+        logger.info(f'   Document trouvé: {doc.get("title")} par {doc.get("authors")}')
     else:
-        logger.warning('  ✗ Document non trouvé')
+        logger.warning('   Document non trouvé')
     
     # Lecture avec filtre
     logger.info('2.2 - Lecture de tous les documents de test:')
     test_docs = list(books.find({'_id': {'$regex': '^test_book_'}}).limit(10))
-    logger.info(f'  ✓ {len(test_docs)} documents trouvés avec filtre regex')
+    logger.info(f'   {len(test_docs)} documents trouvés avec filtre regex')
     
     # Lecture avec projection
     logger.info('2.3 - Lecture avec projection (title et authors uniquement):')
@@ -232,7 +228,6 @@ def test_operations(client):
     # Vérifier la répartition des documents de test sur les shards
     logger.info('2.4 - Vérification de la répartition sur les shards:')
     try:
-        # Compter les docs sur chaque shard via explain
         for test_id in ['test_book_1', 'test_book_2', 'test_book_3']:
             explain = db.command('explain', {
                 'find': 'books',
@@ -246,7 +241,6 @@ def test_operations(client):
     except Exception as e:
         logger.warning(f'  Impossible de déterminer la répartition: {e}')
     
-    # ========== TEST 3: MODIFICATION ==========
     logger.info('\n--- TEST 3: Modification de documents ---')
     
     # Update simple
@@ -256,13 +250,12 @@ def test_operations(client):
             {'_id': 'test_book_1'},
             {'$set': {'pageCount': 250, 'updated': True}}
         )
-        logger.info(f'  ✓ {result.matched_count} document(s) correspondant(s), {result.modified_count} modifié(s)')
+        logger.info(f'   {result.matched_count} document(s) correspondant(s), {result.modified_count} modifié(s)')
         
-        # Vérifier la modification
         updated_doc = books.find_one({'_id': 'test_book_1'})
         logger.info(f'  Nouvelle valeur pageCount: {updated_doc.get("pageCount")}')
     except Exception as e:
-        logger.error(f'  ✗ Erreur: {e}')
+        logger.error(f'   Erreur: {e}')
     
     # Update multiple
     logger.info('3.2 - Modification de plusieurs documents (ajout tag):')
@@ -271,34 +264,32 @@ def test_operations(client):
             {'_id': {'$regex': '^test_book_'}},
             {'$set': {'test_tag': 'crud_operations', 'test_timestamp': datetime.datetime.now()}}
         )
-        logger.info(f'  ✓ {result.matched_count} document(s) correspondant(s), {result.modified_count} modifié(s)')
+        logger.info(f'   {result.matched_count} document(s) correspondant(s), {result.modified_count} modifié(s)')
     except Exception as e:
-        logger.error(f'  ✗ Erreur: {e}')
+        logger.error(f'   Erreur: {e}')
     
-    # ========== TEST 4: SUPPRESSION ==========
     logger.info('\n--- TEST 4: Suppression de documents ---')
     
     # Suppression simple
     logger.info('4.1 - Suppression d\'un document:')
     try:
         result = books.delete_one({'_id': 'test_book_1'})
-        logger.info(f'  ✓ {result.deleted_count} document(s) supprimé(s)')
+        logger.info(f'   {result.deleted_count} document(s) supprimé(s)')
     except Exception as e:
-        logger.error(f'  ✗ Erreur: {e}')
+        logger.error(f'   Erreur: {e}')
     
     # Suppression multiple
     logger.info('4.2 - Suppression de plusieurs documents:')
     try:
         result = books.delete_many({'_id': {'$regex': '^test_book_'}})
-        logger.info(f'  ✓ {result.deleted_count} document(s) supprimé(s)')
+        logger.info(f'   {result.deleted_count} document(s) supprimé(s)')
     except Exception as e:
-        logger.error(f'  ✗ Erreur: {e}')
+        logger.error(f'   Erreur: {e}')
     
     # Compteur final
     final_count = books.count_documents({})
     logger.info(f'\nNombre de documents final: {final_count} (delta par rapport au début: {final_count - initial_count})')
     
-    # ========== STATISTIQUES FINALES ==========
     logger.info('\n--- Statistiques finales du cluster ---')
     
     # Répartition des chunks
@@ -339,9 +330,9 @@ if __name__ == '__main__':
             client = pymongo.MongoClient(MONGOS_URI, serverSelectionTimeoutMS=5000)
         
         test_operations(client)
-        logger.info('\n✓ Tous les tests sont terminés avec succès')
+        logger.info('\n Tous les tests sont terminés avec succès')
     except Exception as e:
-        logger.error(f'\n✗ Erreur lors des tests: {e}')
+        logger.error(f'\n Erreur lors des tests: {e}')
         import traceback
         logger.error(traceback.format_exc())
         sys.exit(10)
