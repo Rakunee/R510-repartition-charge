@@ -9,6 +9,8 @@ Difficultés :
 Commandes : 
 mongoimport --host localhost --port 27040 --db tp --collection books --file ./Abooks2.json --jsonArray
 mongosh mongodb://localhost:27040
+use tp
+db.books.findOne()
 
 
 Sites : 
