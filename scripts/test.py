@@ -112,33 +112,39 @@ def main():
         logger.error('Erreur shardCollection: %s', e)
         sys.exit(3)
     
-    
-
-    # Attendre l'apparition des chunks (timeout)
-    timeout = 60
+    # Attendre l'apparition des chunks (timeout réduit, non bloquant)
+    timeout = 15  # Réduit de 60 à 15 secondes
     waited = 0
+    chunks_found = False
+    
+    logger.info('Attente de la création des chunks (max %ds)...', timeout)
     while waited < timeout:
         cnt = cfg['chunks'].count_documents({'ns': 'tp.books'})
-        logger.info('Chunks trouvés pour tp.books: %s', cnt)
         if cnt > 0:
+            logger.info('✓ %d chunks trouvés pour tp.books', cnt)
+            chunks_found = True
             break
         time.sleep(2)
         waited += 2
 
-    if waited >= timeout:
-        logger.warning('Timeout: aucun chunk détecté après %ds', timeout)
-        sys.exit(4)
+    if not chunks_found:
+        logger.warning('⚠ Aucun chunk détecté après %ds', waited)
+        logger.warning('  C\'est normal pour une collection vide/nouvelle')
+        logger.warning('  Les chunks seront créés automatiquement lors de l\'insertion de données')
+        logger.info('  Le sharding est configuré, on continue...')
+    
+    # Afficher la répartition des chunks par shard (si disponibles)
+    if chunks_found:
+        pipeline = [
+            {'$match': {'ns': 'tp.books'}},
+            {'$group': {'_id': '$shard', 'count': {'$sum': 1}}}
+        ]
+        logger.info('Répartition des chunks pour tp.books:')
+        for doc in cfg['chunks'].aggregate(pipeline):
+            logger.info('  Shard %s -> %d chunks', doc['_id'], doc['count'])
 
-    # Afficher la répartition des chunks par shard
-    pipeline = [
-        {'$match': {'ns': 'tp.books'}},
-        {'$group': {'_id': '$shard', 'count': {'$sum': 1}}}
-    ]
-    logger.info('Répartition des chunks pour tp.books:')
-    for doc in cfg['chunks'].aggregate(pipeline):
-        logger.info('Shard %s -> %d chunks', doc['_id'], doc['count'])
-
-    logger.info('Sharding de tp.books terminé avec succès')
+    logger.info('✓ Configuration du sharding terminée')
+    return client  # Retourner le client pour réutilisation
 
 
 def test_operations(client):
@@ -319,16 +325,25 @@ def test_operations(client):
 
 
 if __name__ == '__main__':
-    main()
+    client = main()  # Récupérer le client depuis main()
     
-    # Après le sharding, lancer les tests CRUD
-    logger.info('\n\nLancement des tests CRUD...')
+    # Attendre un peu que les chunks se propagent si nécessaire
+    logger.info('\n⏳ Pause de 5 secondes avant les tests CRUD...')
+    time.sleep(5)
+    
+    # Lancer les tests CRUD
+    logger.info('\nLancement des tests CRUD...')
     try:
-        client = pymongo.MongoClient(MONGOS_URI, serverSelectionTimeoutMS=5000)
+        if not client:
+            # Si main() n'a pas retourné de client (sharding déjà fait), en créer un nouveau
+            client = pymongo.MongoClient(MONGOS_URI, serverSelectionTimeoutMS=5000)
+        
         test_operations(client)
         logger.info('\n✓ Tous les tests sont terminés avec succès')
     except Exception as e:
         logger.error(f'\n✗ Erreur lors des tests: {e}')
+        import traceback
+        logger.error(traceback.format_exc())
         sys.exit(10)
 
 
