@@ -328,7 +328,7 @@ if __name__ == '__main__':
     client = main()  # Récupérer le client depuis main()
     
     # Attendre un peu que les chunks se propagent si nécessaire
-    logger.info('\n⏳ Pause de 5 secondes avant les tests CRUD...')
+    logger.info('\nPause de 5 secondes avant les tests CRUD...')
     time.sleep(5)
     
     # Lancer les tests CRUD
