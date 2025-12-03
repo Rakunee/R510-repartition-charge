@@ -5,13 +5,14 @@ Difficultés :
 - Trouver la bonne structure pour le docker compose (organisation des services, du réseau...)
 - Utiliser mongodb avec python
 - Utiliser les commandes mongosh et mongodb database tools
+- Faire fonctionner les tests, mettre correctement les variables systèmes, créer les bonnes connexions
+- Faire un script qui lance tout le projet, on est passé par trois langages différents avant d'en trouver qui fonctionne
 
-Commandes : 
+Commandes pour vérifier que ça fonctionne : 
 mongoimport --host localhost --port 27040 --db tp --collection books --file ./Abooks2.json --jsonArray
 mongosh mongodb://localhost:27040
 use tp
 db.books.findOne()
-
 
 Sites : 
 Commandes si on n'utilise pas de docker-compose : 
@@ -30,6 +31,8 @@ https://www.w3schools.com/python/python_mongodb_getstarted.asp
 Commandes mongoDB:
 https://www.mongodb.com/try/download/shell
 
+Installer mongosh et mongo tools :
+https://www.mongodb.com/try/download/database-tools
 
 
 Schéma de l'artchitecture voulue (généré par IA) :
@@ -62,13 +65,3 @@ Schéma de l'artchitecture voulue (généré par IA) :
               │   CONFIG SERVERS (3)     │  ← Métadonnées
               │     (Replica Set)        │
               └──────────────────────────┘
-
-Fonctionnement actuel (script ps et js) : 
-docker-compose down -v (coupe les conteneurs)
-Remove-Item -Recurse -Force c:\Users\gatue\Documents\R510-repartition-charge\docker\data\* (supprime tous les dossiers data)
-docker-compose up -d (Lance les conteneurs)
-Start-Sleep -Seconds 5; docker ps --format "table {{.Names}}\t{{.Status}}" (Vérifie que les conteneurs sont ok avant de lancer la commande suivante)
-.\setup-cluster.ps1 (Lance les clusters via le script ps)
-
-https://www.mongodb.com/try/download/database-tools
-à installer
